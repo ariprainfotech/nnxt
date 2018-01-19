@@ -139,6 +139,7 @@ userSchema.statics.editUser = async userObj => {
         if (count != 0) {
             throw new AppError("Email already used ", ErrorCodes.EMAIL_ALREADY_USED)
         }
+
     }
 
     if (userObj.password) {
