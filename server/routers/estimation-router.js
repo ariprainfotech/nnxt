@@ -23,7 +23,11 @@ import {
     estimationNegotiatorUpdateFeatureStruct,
     estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,
-    estimationNegotiatorGrantEditPermissionToTaskStruct
+    estimationNegotiatorGrantEditPermissionToTaskStruct,
+    estimationNegotiatorApproveTaskStruct,
+    estimationNegotiatorApproveFeatureStruct,
+    estimationApproveByNegotiatorStruct,
+    estimationProjectAwardByNegotiatorStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -263,6 +267,46 @@ estimationRouter.put('/grant-edit-permission-task', async ctx => {
         return await EstimationTaskModel.grantEditPermissionOfTaskByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+estimationRouter.put('/approve-task', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorApproveTaskStruct)
+        return await EstimationTaskModel.approveTaskByNegotiator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+estimationRouter.put('/approve-feature', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorApproveFeatureStruct)
+        return await EstimationTaskModel.approveFeatureByNegotiator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve feature into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+estimationRouter.put('/approve-estimation', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationApproveByNegotiatorStruct)
+        return await EstimationModel.approveEstimationByNegotiator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+estimationRouter.put('/project-award', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationProjectAwardByNegotiatorStruct)
+        return await EstimationModel.projectAwardByNegotiator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can project award of this estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 export default estimationRouter

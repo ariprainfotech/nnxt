@@ -318,5 +318,71 @@ estimationSchema.statics.requestChange = async (estimationID, negotiator) => {
 }
 
 
+estimationSchema.statics.approveEstimationByNegotiator = async (estimationInput, negotiator) => {
+    let estimation = await EstimationModel.findById(estimationInput._id)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can approve by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let pendingTaskList  = await EstimationTaskModel.find({"estimation._id" : estimation._id,status:SC.STATUS_PENDING})
+    if(!pendingTaskList || pendingTaskList.length==0)
+        throw new AppError('Estimations approve failed due to estimation have some task pending for approve', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let pendingFeatureList  = await EstimationFeatureModel.find({"estimation._id" : estimation._id,status:SC.STATUS_PENDING})
+    if(!pendingFeatureList || pendingFeatureList.length==0)
+        throw new AppError('Estimations approve failed due to estimation have some feature pending for approve', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let statusHistory = {}
+    statusHistory.name = negotiator.firstName +' '+ negotiator.lastName
+    statusHistory.status = SC.STATUS_APPROVED
+    statusHistory.date = Date.now()
+
+    let existingEstimationStatusHistory = estimation.statusHistory
+    if(existingEstimationStatusHistory && existingEstimationStatusHistory.length>0)
+        existingEstimationStatusHistory.push(statusHistory)
+    else
+        existingEstimationStatusHistory = [statusHistory]
+
+    estimation.statusHistory = existingEstimationStatusHistory
+    estimation.status = SC.STATUS_APPROVED
+    estimation.updated = Date.now()
+    
+    return await estimation.save()
+}
+
+estimationSchema.statics.projectAwardByNegotiator = async (projectAwardEstimationInput, negotiator) => {
+
+    if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findById(projectAwardEstimationInput._id)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_APPROVED], estimation.status))
+        throw new AppError("Only estimations with status [" + SC.STATUS_APPROVED + "] can project award by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let release = {}
+
+    //Note : this API is on hold because Project Award form is designing..........
+
+    estimation.release = release
+    estimation.status = SC.STATUS_PROJECT_AWARDED
+    estimation.updated = Date.now()
+
+    return await estimation.save()
+}
+
 const EstimationModel = mongoose.model("Estimation", estimationSchema)
 export default EstimationModel
