@@ -25,7 +25,7 @@ class TaskPlanList extends Component {
                 text: '50', value: 50
             }],
             sizePerPage,  // which size per page you want to locate as default
-            onRowClick: this.onRowClick.bind(this)
+            //onRowClick: this.onRowClick.bind(this)
         }
 
         this.state = {
@@ -43,19 +43,6 @@ class TaskPlanList extends Component {
 
     onRowDoubleClick(row) {
 
-    }
-    onRowClick(row) {
-
-
-        this.props.taskPlanSelectedForRelease(row).then(json => {
-            console.log("get the data at the task plan list",json)
-            if (json.success) {
-                console.log("get the data at the task plan list... if ",json)
-                this.props.history.push('/app-home/task-plan-detail')
-                this.props.showTaskDetailPage()
-            }
-            return json
-        })
     }
     formatDeveloperName(employee) {
         if (employee)
@@ -109,6 +96,24 @@ class TaskPlanList extends Component {
                     </button>
                 </CopyToClipboard>
             </div>
+        )
+    }
+
+    formatViewButton(cell, row, enumObject, rowIndex) {
+
+        return (<button className=" btn btn-custom" type="button" onClick={() => {
+                this.props.taskPlanSelectedForRelease(row).then(json => {
+                    console.log("get the data at the task plan list",json)
+                    if (json.success) {
+                        console.log("get the data at the task plan list... if ",json)
+                        this.props.history.push('/app-home/task-plan-detail')
+                        this.props.showTaskDetailPage()
+                    }
+                    return json
+                })
+            }}>
+                <i className="fa fa-eye"></i>
+            </button>
         )
     }
 
@@ -252,6 +257,7 @@ class TaskPlanList extends Component {
 
 
 
+
                         </BootstrapTable>
                     </div> :
                     <div className={"col-md-12"}>
@@ -288,6 +294,9 @@ class TaskPlanList extends Component {
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle width={"8%"} dataField='report'
                                                dataFormat={this.formatCopyButton.bind(this)} dataAlign={"center"}>Copy
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="6%" dataField='button'
+                                               dataFormat={this.formatViewButton.bind(this)}>View
                             </TableHeaderColumn>
                         </BootstrapTable>
                     </div>

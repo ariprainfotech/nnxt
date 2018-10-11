@@ -248,13 +248,12 @@ class ReportingTaskPage extends Component {
                     {
                         iterationType == SC.ITERATION_TYPE_PLANNED && releases && releases.length ? releases.map((release, idx) =>
                             <div key={release._id}>
-                                <BootstrapTable options={this.reportTaskPageOptions}
+                                <BootstrapTable style={{marginBottom:'3%;'}} options={this.reportTaskPageOptions}
                                                 data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
                                                 striped={true}
                                                 hover={true}
                                                 trClassName={this.rowClassNameFormat.bind(this)}
                                                 cellEdit={cellEditProp}
-                                                height={"100%"}
                                                 pagination>
 
                                     <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>

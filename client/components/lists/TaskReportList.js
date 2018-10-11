@@ -22,7 +22,7 @@ class TaskReportList extends Component {
                 text: '50', value: 50
             }],
             sizePerPage,  // which size per page you want to locate as default
-            onRowClick: this.onRowClick.bind(this)
+            //onRowClick: this.onRowClick.bind(this)
 
         }
     }
@@ -69,7 +69,7 @@ class TaskReportList extends Component {
         console.log("get the task Description", report.description)
         if (report)
             return <div>
-                <CopyToClipboard text={report.description} onCopy={() => this.props.showNotification('Day report text copied successfully!!!')}>
+                <CopyToClipboard text={report.description} onCopy={() => this.props.showNotification('Report description text copied successfully!!!')}>
                     <button id='copy' className="fa fa-copy pull-left btn btn-custom" type="button">
                     </button>
                 </CopyToClipboard>
@@ -134,7 +134,7 @@ class TaskReportList extends Component {
 
 
 
-    onRowClick(row, second, third) {
+    /*onRowClick(row, second, third) {
         console.log("second is ", second)
         console.log("third is ", third)
         this.props.taskPlanSelected(row).then(json => {
@@ -144,9 +144,9 @@ class TaskReportList extends Component {
             }
             return json
         })
-    }
+    }*/
 
-    viewDetailButton(cell, row, enumObject, rowIndex) {
+    formatViewButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
                 this.props.taskPlanSelected(row).then(json => {
                     if (json.success) {
@@ -248,6 +248,9 @@ class TaskReportList extends Component {
                                 </TableHeaderColumn>
                             <TableHeaderColumn width="8%" columnTitle dataField='report'
                                                dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="6%" dataField='button'
+                                               dataFormat={this.formatViewButton.bind(this)}>View
                             </TableHeaderColumn>
 
                         </BootstrapTable>
